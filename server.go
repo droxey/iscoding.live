@@ -12,6 +12,8 @@ import (
 	"github.com/json-iterator/go"
 )
 
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 // Coder represents a programmer who may
 // or may not be coding at this very moment.
 type Coder struct {
@@ -28,7 +30,8 @@ func main() {
 	}
 
 	apiKey := os.Getenv("WAKATIME_API_KEY")
-	url := "https://wakatime.com/api/v1/users/current/teams/0d49a7ce-bbc6-4ca9-916c-57ed9d2b65dd/members?api_key=" + apiKey
+	teamGUID := os.Getenv("WAKATIME_TEAM_GUID")
+	url := "https://wakatime.com/api/v1/users/current/teams/" + teamGUID + "/members?api_key=" + apiKey
 
 	client := http.Client{
 		Timeout: time.Second * 60,
@@ -51,22 +54,17 @@ func main() {
 		log.Fatal(readErr)
 	}
 
-	textBytes := []byte(body)
-	coders := jsoniter.Get(textBytes, "data", 0).ToString()
-	fmt.Println(coders)
+	teamJSON := json.Get([]byte(body)).ToString()
 
-	coder := Coder{}
-	parseErr := jsoniter.Unmarshal(textBytes, &coder)
+	// Creating the maps for JSON
+	m := map[string]interface{}{}
+
+	//coder := Coder{}
+	parseErr := json.Unmarshal([]byte(teamJSON), &m)
 	if parseErr != nil {
 		fmt.Println(parseErr)
 		return
 	}
 
-	// TODO: Iterate over output and print each.Coder
-	//
-	// for c := range coders {
-	// 	fmt.Printf("'%s' last seen on '%s'\n", coders[c].Email, coders[c].LastHeartbeat)
-	// }
-
-	fmt.Println(coder.Email)
+	fmt.Println(m)
 }
