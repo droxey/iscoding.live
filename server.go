@@ -23,6 +23,12 @@ type Coder struct {
 	LatestProject   string `json:"last_project"`
 }
 
+// Team contains an array of Coder to represent
+// each team member.
+type Team struct {
+	Coders []Coder `json:"data"`
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -54,17 +60,14 @@ func main() {
 		log.Fatal(readErr)
 	}
 
-	teamJSON := json.Get([]byte(body)).ToString()
+	team := &Team{}
+	parseErr := json.Unmarshal([]byte(body), &team)
 
-	// Creating the maps for JSON
-	m := map[string]interface{}{}
-
-	//coder := Coder{}
-	parseErr := json.Unmarshal([]byte(teamJSON), &m)
 	if parseErr != nil {
 		fmt.Println(parseErr)
 		return
 	}
 
-	fmt.Println(m)
+	fmt.Printf("%v\n", team)
 }
+
