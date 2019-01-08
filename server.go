@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"text/tabwriter"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -22,7 +24,7 @@ type Coder struct {
 	LatestProject   string    `json:"last_project"`
 	Timezone        string    `json:"timezone"`
 	LatestHeartbeat time.Time `json:"last_heartbeat"`
-	DefaultTimezone string
+	Active          bool
 }
 
 // Team contains an array of Coder to represent
@@ -50,7 +52,6 @@ func main() {
 	// Grab secrets from .env using godotenv.
 	apiKey := os.Getenv("WAKATIME_API_KEY")
 	teamGUID := os.Getenv("WAKATIME_TEAM_GUID")
-
 	url := "https://wakatime.com/api/v1/users/current/teams/" + teamGUID + "/members?api_key=" + apiKey
 
 	client := http.Client{
@@ -94,14 +95,41 @@ func main() {
 		return
 	}
 
+	// Set up the CLI output to look nice.
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 50, 8, 4, '\t', 0)
+
+	separator := strings.Repeat("-", 50)
+	fmt.Println()
+	fmt.Fprintln(w, "Coder\t", "Current Project\t", "Last Seen")
+	fmt.Fprintln(w, separator, "\t", separator, "\t", separator)
+
 	// Print the resulting object.
 	// Convert LatestHeartbeat to the current user's timezone.
 	for _, coder := range team.Coders {
+		// Provide a default value for TZ if none is provided.
 		if coder.Timezone == "" {
 			coder.Timezone = "America/Los_Angeles"
 		}
+
+		// Convert UTC heartbeat into the user's local time.
 		coder.LatestHeartbeat = timeIn(coder.LatestHeartbeat, coder.Timezone)
-		fmt.Printf("%v: %v \n\n", coder.Email, coder.LatestHeartbeat)
+		now := timeIn(time.Now(), coder.Timezone)
+
+		// Diff the time from localized time.Now()
+		diff := now.Sub(coder.LatestHeartbeat)
+
+		activityTimeout := 120.0
+		isActive := diff.Seconds() <= activityTimeout
+		coder.Active = true
+
+		// Set a 2 minute timeout window for activity.
+		if isActive {
+			fmt.Fprintln(w, coder.Email, "\t", coder.LatestProject, "\t", int(diff.Seconds()), "seconds ago")
+		}
 	}
+
+	fmt.Fprintln(w, separator, "\t", separator, "\t", separator)
+	w.Flush()
 }
 
