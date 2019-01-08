@@ -22,6 +22,7 @@ type Coder struct {
 	LatestProject   string    `json:"last_project"`
 	Timezone        string    `json:"timezone"`
 	LatestHeartbeat time.Time `json:"last_heartbeat"`
+	DefaultTimezone string
 }
 
 // Team contains an array of Coder to represent
@@ -96,6 +97,9 @@ func main() {
 	// Print the resulting object.
 	// Convert LatestHeartbeat to the current user's timezone.
 	for _, coder := range team.Coders {
+		if coder.Timezone == "" {
+			coder.Timezone = "America/Los_Angeles"
+		}
 		coder.LatestHeartbeat = timeIn(coder.LatestHeartbeat, coder.Timezone)
 		fmt.Printf("%v: %v \n\n", coder.Email, coder.LatestHeartbeat)
 	}
