@@ -121,7 +121,7 @@ func main() {
 
 		activityTimeout := 120.0
 		isActive := diff.Seconds() <= activityTimeout
-		coder.Active = true
+		coder.Active = isActive
 
 		// Set a 2 minute timeout window for activity.
 		if isActive {
