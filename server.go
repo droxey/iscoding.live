@@ -99,7 +99,7 @@ func main() {
 	// Set up the CLI output to look nice.
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 15, 8, 8, '\t', 0)
-	fmt.Fprintln(w, "\nCoder\t", "Current Project\t", "Last Seen")
+	fmt.Fprintln(w, "\nCoder\t", "Last Seen\t", "Current Project")
 	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
 
 	// Print the resulting object.
@@ -121,7 +121,7 @@ func main() {
 		coder.Active = isActive
 
 		if isActive {
-			fmt.Fprintln(w, coder.Email, "\t", coder.LatestProject, "\t", int(secondsDiff), "seconds ago")
+			fmt.Fprintln(w, coder.Email, "\t", int(secondsDiff), "seconds ago", "\t", coder.LatestProject)
 		}
 	}
 
