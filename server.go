@@ -20,12 +20,12 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 // Coder represents a programmer who may
 // or may not be coding at this very moment.
 type Coder struct {
+	Active          bool
 	Email           string    `json:"email"`
 	Username        string    `json:"username"`
 	LatestProject   string    `json:"last_project"`
 	Timezone        string    `json:"timezone"`
 	LatestHeartbeat time.Time `json:"last_heartbeat"`
-	Active          bool
 }
 
 // Team contains an array of Coder to represent
