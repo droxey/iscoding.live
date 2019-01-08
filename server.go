@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -97,9 +98,9 @@ func main() {
 
 	// Set up the CLI output to look nice.
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 50, 8, 4, '\t', 0)
+	w.Init(os.Stdout, 15, 8, 8, '\t', 0)
 
-	separator := strings.Repeat("-", 50)
+	separator := strings.Repeat("-", 15)
 	fmt.Println()
 	fmt.Fprintln(w, "Coder\t", "Current Project\t", "Last Seen")
 	fmt.Fprintln(w, separator, "\t", separator, "\t", separator)
@@ -116,16 +117,15 @@ func main() {
 		coder.LatestHeartbeat = timeIn(coder.LatestHeartbeat, coder.Timezone)
 		now := timeIn(time.Now(), coder.Timezone)
 
-		// Diff the time from localized time.Now()
-		diff := now.Sub(coder.LatestHeartbeat)
-
+		// Diff the time from localized time.Now() and update the Coder's status.
+		secondsDiff := math.Abs(now.Sub(coder.LatestHeartbeat).Seconds())
 		activityTimeout := 120.0
-		isActive := diff.Seconds() <= activityTimeout
+		isActive := secondsDiff <= activityTimeout
 		coder.Active = isActive
 
 		// Set a 2 minute timeout window for activity.
 		if isActive {
-			fmt.Fprintln(w, coder.Email, "\t", coder.LatestProject, "\t", int(diff.Seconds()), "seconds ago")
+			fmt.Fprintln(w, coder.Email, "\t", coder.LatestProject, "\t", int(secondsDiff), "seconds ago")
 		}
 	}
 
