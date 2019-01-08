@@ -99,11 +99,8 @@ func main() {
 	// Set up the CLI output to look nice.
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 15, 8, 8, '\t', 0)
-
-	separator := strings.Repeat("-", 15)
-	fmt.Println()
-	fmt.Fprintln(w, "Coder\t", "Current Project\t", "Last Seen")
-	fmt.Fprintln(w, separator, "\t", separator, "\t", separator)
+	fmt.Fprintln(w, "\nCoder\t", "Current Project\t", "Last Seen")
+	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
 
 	// Print the resulting object.
 	// Convert LatestHeartbeat to the current user's timezone.
@@ -119,17 +116,16 @@ func main() {
 
 		// Diff the time from localized time.Now() and update the Coder's status.
 		secondsDiff := math.Abs(now.Sub(coder.LatestHeartbeat).Seconds())
-		activityTimeout := 120.0
+		activityTimeout := 60.0 * 5
 		isActive := secondsDiff <= activityTimeout
 		coder.Active = isActive
 
-		// Set a 2 minute timeout window for activity.
 		if isActive {
 			fmt.Fprintln(w, coder.Email, "\t", coder.LatestProject, "\t", int(secondsDiff), "seconds ago")
 		}
 	}
 
-	fmt.Fprintln(w, separator, "\t", separator, "\t", separator)
+	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
 	w.Flush()
 }
 
