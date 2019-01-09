@@ -98,7 +98,7 @@ func main() {
 
 	// Set up the CLI output to look nice.
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 15, 8, 8, '\t', 0)
+	w.Init(os.Stdout, 20, 8, 8, '\t', 0)
 	fmt.Fprintln(w, "\nCoder\t", "Last Seen\t", "Current Project")
 	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
 
