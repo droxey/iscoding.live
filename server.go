@@ -17,8 +17,7 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-// Coder represents a programmer who may
-// or may not be coding at this very moment.
+// Coder represents a programmer who may or may not be coding at this very moment.
 type Coder struct {
 	Active          bool
 	Email           string    `json:"email"`
@@ -28,8 +27,7 @@ type Coder struct {
 	LatestHeartbeat time.Time `json:"last_heartbeat"`
 }
 
-// Team contains an array of Coder to represent
-// each team member.
+// Team contains an array of Coder to represent each team member.
 type Team struct {
 	Coders []Coder `json:"data"`
 }
@@ -61,15 +59,13 @@ func main() {
 		Timeout: time.Second * 60,
 	}
 
-	// Use http.NewRequest when you need to specify attributes
-	// of the request. Example: setting custom headers.
+	// Use http.NewRequest when you need to specify attributes of the request. Example: setting custom headers.
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Set a custom header for User-Agent so the
-	// Wakatime API knows who made the request.
+	// Set a custom header for User-Agent so the Wakatime API knows who made the request.
 	req.Header.Set("User-Agent", "iscoding.live")
 
 	// Execute the GET request.
@@ -78,8 +74,7 @@ func main() {
 		log.Fatal(getErr)
 	}
 
-	// Response data is available in response.Body
-	// Read until error or EOF.
+	// Response data is available in response.Body; read until error or EOF.
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {
 		log.Fatal(readErr)
@@ -100,10 +95,9 @@ func main() {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 20, 8, 8, '\t', 0)
 	fmt.Fprintln(w, "\nCoder\t", "Last Seen\t", "Current Project")
-	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
+	fmt.Fprintln(w, strings.Repeat("-------------------------------------\t", 3))
 
-	// Print the resulting object.
-	// Convert LatestHeartbeat to the current user's timezone.
+	// Print the resulting object. Convert LatestHeartbeat to the current user's timezone.
 	for _, coder := range team.Coders {
 		// Provide a default value for TZ if none is provided.
 		if coder.Timezone == "" {
@@ -125,7 +119,6 @@ func main() {
 		}
 	}
 
-	fmt.Fprintln(w, strings.Repeat("-----------------\t", 3))
+	fmt.Fprintln(w, strings.Repeat("-------------------------------------\t", 3))
 	w.Flush()
 }
-
